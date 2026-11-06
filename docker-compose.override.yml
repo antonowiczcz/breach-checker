@@ -1,5 +1,11 @@
 # Konfiguracja deweloperska - Compose dokłada ten plik automatycznie do docker-compose.yml
 services:
+  frontend:
+    volumes:
+      - ./frontend/index.html:/usr/share/nginx/html/index.html:ro
+      - ./frontend/style.css:/usr/share/nginx/html/style.css:ro
+      - ./frontend/script.js:/usr/share/nginx/html/script.js:ro
+
   backend:
     build:
       context: ./backend
