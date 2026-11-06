@@ -2,9 +2,9 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "8080:80"          # jedyny port opublikowany na hoście
+      - "8080:80" # jedyny port opublikowany na hoście
     depends_on:
-      - backend            # nginx przy starcie musi znaleźć nazwę backend
+      - backend # nginx przy starcie musi znaleźć nazwę backend
 
   backend:
     build: ./backend
@@ -16,6 +16,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   db:
     image: postgres:16-alpine
@@ -28,7 +33,7 @@ services:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
       - ./data/leaked-sha1.txt:/data/leaked-sha1.txt:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: [ "CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 5s
       timeout: 3s
       retries: 5
