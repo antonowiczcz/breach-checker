@@ -1,7 +1,5 @@
 # Zadanie 06 - Raport
 
-## 1. Własne testy
-
 ### Wynik polecenia `docker compose exec backend pytest -v` (wszystkie testy zaliczone):
 
 ```text
@@ -52,7 +50,7 @@ FAILED tests/test_check.py::test_uppercase_hash_is_found - assert 400 == 200
 
 ### Dlaczego testy z zajęć nie wykryły usunięcia `.lower()`:
 
-Testy przygotowane na zajęciach przesyłały w ciele żądania wyłącznie hashe zdefiniowane małymi literami (zarówno `LEAKED`, jak i `NOT_LEAKED` składały się z małych znaków hex). Żaden z pierwotnych testów nie weryfikował obsługi skrótów z wielkimi literami A-F, przez co brak konwersji `.lower()` nie naruszał walidacji wyrażeniem regularnym `[0-9a-f]{40}`.
+Testy z zajęć używały wyłącznie skrótów zapisanych małymi literami. Brak `.lower()` nie powodował więc błędu walidacji regexem `[0-9a-f]{40}`.
 
 ---
 
@@ -89,7 +87,7 @@ exited 1
 
 ### Co zawierał `blad.html` i dlaczego byłby zagrożeniem na produkcji:
 
-Plik `blad.html` zawierał pełną interaktywną stronę debuggera Werkzeug wraz ze szczegółowym stosem wywołań (traceback), fragmentami kodu źródłowego aplikacji, ścieżkami w kontenerze oraz parametrami połączenia ze środowiskiem bazy. Na serwerze produkcyjnym ujawnienie takich danych stanowi poważny wyciek informacji (Information Disclosure), ułatwiający przeprowadzenie ukierunkowanego ataku, a obecność aktywnej konsoli debugera z kodem PIN mogłaby umożliwić nieuwierzytelnione zdalne wykonanie kodu (RCE).
+Plik `blad.html` zawierał stronę debuggera Werkzeug z pełnym tracebackiem błędu, kodem źródłowym i danymi bazy. Na produkcji ujawnia to strukturę aplikacji (Information Disclosure) oraz grozi zdalnym wykonaniem kodu (RCE) przez interaktywną konsolę debugera.
 
 ---
 
@@ -127,4 +125,4 @@ Connection: keep-alive
 
 ### Obraz produkcyjny a bezpieczeństwo bind mountów:
 
-Obraz produkcyjny frontendu nie ma tego problemu, ponieważ instrukcja `COPY` w [frontend/Dockerfile](file:///c:/Users/anton/OneDrive/Dokumenty/metody_wirtualizacji_lab/breach-checker/Frontend/Dockerfile) precyzyjnie przenosi do katalogu `/usr/share/nginx/html` jedynie pliki interfejsu (`index.html`, `style.css`, `script.js`), natomiast `nginx.conf` kopiowany jest w dedykowane miejsce konfiguracji Nginxa (`/etc/nginx/conf.d/default.conf`). Montowanie całego katalogu projektu jako web root serwera WWW jest ryzykowne, ponieważ ujawnia w sieci publicznej pliki konfiguracyjne, definicje kontenerów (`Dockerfile`), skrypty czy potencjalnie ukryte pliki z danymi wrażliwymi.
+`frontend/Dockerfile` kopiuje do katalogu `/usr/share/nginx/html` tylko pliki strony (`index.html`, `style.css`, `script.js`), a plik `nginx.conf` umieszcza w konfiguracji serwera. Montowanie całego katalogu jako web root jest ryzykowne, bo udostępnia publicznie pliki konfiguracyjne i wrażliwe pliki projektu.
